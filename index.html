@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Для Зарин ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080808;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --gold: #c9a84c;
+  --gold2: #e8c87a;
+  --gold-dim: rgba(201,168,76,0.12);
+  --gold-glow: rgba(201,168,76,0.3);
+  --gold-border: rgba(201,168,76,0.22);
+  --cream: #f0ead8;
+  --muted: #6b6045;
+  --white: #fff8ee;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden; color: var(--cream);
+  user-select: none;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 500px 300px at 50% 0%, rgba(201,168,76,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 300px 500px at 50% 100%, rgba(201,168,76,0.03) 0%, transparent 70%),
+    radial-gradient(1px 1px at 8% 15%, rgba(201,168,76,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 72%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 42% 8%, rgba(201,168,76,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 68% 85%, rgba(255,255,255,0.18) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 30%, rgba(201,168,76,0.3) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 92% 60%, rgba(255,255,255,0.2) 0%, transparent 100%);
+  pointer-events: none; z-index: 0;
+}
+
+.music-btn {
+  position: fixed; top: 1rem; right: 1rem; z-index: 100;
+  background: var(--surface2); border: 1px solid var(--gold-border);
+  border-radius: 50%; width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.music-btn.playing { border-color: var(--gold); box-shadow: 0 0 14px var(--gold-glow); }
+
+.wrap {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  align-items: center; width: 100%; padding: 0 1rem;
+}
+
+.eyebrow {
+  font-size: 0.6rem; letter-spacing: 0.24em;
+  text-transform: uppercase; color: var(--gold);
+  opacity: 0.6; margin-bottom: 0.2rem; text-align: center;
+}
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.6rem, 6vw, 2.1rem);
+  font-weight: 300; color: var(--white);
+  letter-spacing: 0.04em; text-align: center; margin-bottom: 0.15rem;
+}
+h1 em { font-style: italic; color: var(--gold2); }
+
+.status-bar {
+  display: flex; gap: 1.5rem; margin-bottom: 0.5rem;
+  font-size: 0.68rem; color: var(--muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.status-bar span strong { color: var(--gold2); font-weight: 400; }
+
+.hint {
+  font-size: 0.68rem; color: var(--muted);
+  letter-spacing: 0.06em; margin-bottom: 0.6rem;
+  text-align: center;
+}
+.hint em { color: var(--gold); font-style: normal; }
+
+.board-wrap {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 10px;
+  box-shadow: 0 0 40px rgba(201,168,76,0.05);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  width: min(78vw, 330px);
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(1.2rem, 4.5vw, 1.55rem);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+  background: var(--surface2);
+  border: 1px solid rgba(255,255,255,0.04);
+  position: relative;
+}
+.cell:active { transform: scale(0.88); }
+.cell.selected {
+  border: 1px solid var(--gold);
+  box-shadow: 0 0 12px var(--gold-glow), inset 0 0 8px var(--gold-dim);
+  transform: scale(1.1);
+  z-index: 2;
+}
+.cell.matched { animation: matchPop 0.35s ease forwards; }
+@keyframes matchPop {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.5; }
+  100% { transform: scale(0); opacity: 0; }
+}
+.cell.fall { animation: fallIn 0.3s ease; }
+@keyframes fallIn {
+  from { transform: translateY(-35px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.score-popup {
+  position: fixed;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-style: italic; color: var(--gold2);
+  pointer-events: none; z-index: 50;
+  animation: scoreFloat 0.9s ease forwards;
+}
+@keyframes scoreFloat {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+
+/* COMPLIMENT MODAL — xuddi Simon Says dek */
+.comp-modal {
+  display: none; position: fixed; inset: 0;
+  z-index: 300; align-items: center; justify-content: center;
+  padding: 1.5rem;
+  background: rgba(4,3,2,0.86);
+  backdrop-filter: blur(8px);
+}
+.comp-modal.show { display: flex; animation: fadeInM 0.3s ease; }
+@keyframes fadeInM { from{opacity:0} to{opacity:1} }
+
+.comp-card {
+  background: linear-gradient(160deg, #181208, #100d05);
+  border: 1px solid rgba(201,168,76,0.4);
+  border-radius: 22px;
+  padding: 2.5rem 2rem 2rem;
+  max-width: 320px; width: 100%;
+  text-align: center;
+  box-shadow: 0 0 60px var(--gold-dim);
+  animation: popUp 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative; overflow: hidden;
+}
+.comp-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+@keyframes popUp {
+  from { transform: scale(0.72) translateY(8px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.comp-icon { font-size: 3rem; margin-bottom: 0.8rem; display: block; animation: floatIcon 2.5s ease-in-out infinite; }
+@keyframes floatIcon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+
+.comp-num { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); opacity: 0.55; margin-bottom: 0.3rem; }
+.comp-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.1rem, 4.5vw, 1.3rem); font-weight: 400;
+  color: var(--gold2); letter-spacing: 0.02em;
+  margin-bottom: 0.85rem; font-style: italic;
+}
+.comp-text {
+  font-size: clamp(0.87rem, 3.5vw, 0.96rem); font-weight: 300;
+  color: var(--cream); line-height: 1.75;
+  margin-bottom: 1.75rem; opacity: 0.9;
+}
+.comp-continue {
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.4);
+  color: var(--gold); padding: 0.65rem 2rem;
+  border-radius: 100px; font-family: 'Inter', sans-serif;
+  font-size: 0.75rem; letter-spacing: 0.12em;
+  text-transform: uppercase; cursor: pointer; min-height: 44px;
+  transition: background 0.2s;
+}
+.comp-continue:hover, .comp-continue:active { background: var(--gold-dim); }
+
+/* WIN OVERLAY */
+.win-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(4,3,2,0.96);
+  z-index: 400; align-items: flex-start;
+  justify-content: center; padding: 1.5rem;
+  overflow-y: auto;
+}
+.win-overlay.show { display: flex; animation: fadeIn 0.6s ease; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.win-box { max-width: 360px; width: 100%; margin: auto; padding: 2rem 0; }
+.win-icon { font-size: 2.2rem; text-align: center; display: block; margin-bottom: 0.4rem; animation: floatIcon 3s ease-in-out infinite; }
+.win-box h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.4rem, 5vw, 1.8rem); font-weight: 300;
+  color: var(--white); text-align: center; margin-bottom: 0.2rem; letter-spacing: 0.03em;
+}
+.win-box h2 em { color: var(--gold2); font-style: italic; }
+.win-sub { text-align: center; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.75rem; }
+
+.letter-wrap {
+  background: var(--surface); border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 1.75rem 1.5rem;
+  margin-bottom: 1.5rem; position: relative;
+}
+.letter-wrap::before {
+  content: '\275D';
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem; color: var(--gold); opacity: 0.07;
+  position: absolute; top: -0.4rem; left: 1rem; line-height: 1;
+}
+.letter {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; line-height: 2;
+  color: var(--cream); font-weight: 300;
+  white-space: pre-line; font-style: italic; opacity: 0.9;
+}
+.letter-sig {
+  margin-top: 1rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-style: normal;
+  color: var(--gold2); font-weight: 400;
+}
+
+.comp-recap { list-style: none; margin-bottom: 1.75rem; display: flex; flex-direction: column; gap: 0.65rem; }
+.comp-recap li {
+  background: var(--surface); border: 1px solid var(--gold-border);
+  border-radius: 12px; padding: 0.85rem 1rem;
+  display: flex; gap: 0.75rem; align-items: flex-start;
+}
+.rc-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.rc-title { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); opacity: 0.75; margin-bottom: 0.2rem; }
+.rc-text { font-size: 0.83rem; color: var(--cream); font-weight: 300; line-height: 1.6; opacity: 0.85; }
+
+.restart-btn {
+  display: block; width: 100%;
+  background: transparent; border: 1px solid var(--gold-border);
+  color: var(--gold); padding: 0.85rem 2rem;
+  border-radius: 100px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-style: italic;
+  letter-spacing: 0.06em; cursor: pointer; min-height: 48px;
+  transition: background 0.2s;
+}
+.restart-btn:hover, .restart-btn:active { background: var(--gold-dim); }
+
+footer {
+  position: relative; z-index: 1; margin-top: 0.5rem;
+  font-size: 0.62rem; color: var(--muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop preload="auto">
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+<button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵</button>
+
+<div class="wrap">
+  <p class="eyebrow">Только для тебя</p>
+  <h1>Для <em>Зарин</em></h1>
+
+  <div class="status-bar">
+    <span>Очки: <strong id="scoreNum">0</strong></span>
+    <span>Совпадений: <strong id="matchNum">0</strong> / 8</span>
+  </div>
+
+  <p class="hint">выбери две рядом стоящие фишки и поменяй местами</p>
+
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+</div>
+
+<footer>r4lph + JK ❤️</footer>
+
+<!-- COMPLIMENT MODAL -->
+<div class="comp-modal" id="compModal">
+  <div class="comp-card">
+    <span class="comp-icon" id="compIcon">✦</span>
+    <p class="comp-num" id="compNum"></p>
+    <p class="comp-title" id="compTitle"></p>
+    <p class="comp-text" id="compText"></p>
+    <button class="comp-continue" onclick="closeComp()">Продолжить →</button>
+  </div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="win-overlay" id="winOverlay">
+  <div class="win-box">
+    <span class="win-icon">✦</span>
+    <h2>Ты <em>собрала всё!</em></h2>
+    <p class="win-sub">все 8 комплиментов открыты</p>
+    <div class="letter-wrap">
+      <div class="letter">Зарин...
+
+Ты только что открыла всё.
+По кусочкам, шаг за шагом — именно так ты всё делаешь.
+
+Спокойно. Уверенно. Красиво.
+
+Я люблю тебя <br>  сегодня, завтра и всегда❤️</div>
+      <div class="letter-sig">from r4lph to JK)❤️</div>
+    </div>
+    <p style="font-size:0.65rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1rem;">всё что я хотел сказать</p>
+    <ul class="comp-recap" id="compRecap"></ul>
+    <button class="restart-btn" onclick="fullRestart()">Играть снова</button>
+  </div>
+</div>
+
+<script>
+// === ДАННЫЕ ===
+const GEMS = ['🌹','✨','🌙','💫','⭐','🕊️','💌'];
+const COLS = 7, ROWS = 7;
+
+const COMPLIMENTS = [
+  { icon: '🌹', title: 'Твои глаза',       text: 'Твои глаза — когда ты смотришь, всё вокруг останавливается. Я каждый раз теряюсь, и привыкнуть невозможно.' },
+  { icon: '✨', title: 'Твоя улыбка',      text: 'Когда ты улыбаешься — становится теплее. Не знаю как ты это делаешь, но это работает каждый раз.' },
+  { icon: '🌙', title: 'Твой голос',       text: 'Ты говоришь так спокойно и уверенно. Я могу слушать тебя очень долго, не замечая как идёт время.' },
+  { icon: '💫', title: 'Твой смех',        text: 'Когда ты смеёшься по-настоящему — я готов говорить что угодно, лишь бы снова это услышать.' },
+  { icon: '⭐', title: 'Твой характер',    text: 'Ты живая и настоящая. Не притворяешься. Это редкость — и именно это притягивает сильнее всего.' },
+  { icon: '🕊️', title: 'Время с тобой',  text: 'Каждый раз когда мы вместе — смотрю на часы и не понимаю куда делось время. С тобой оно просто исчезает.' },
+  { icon: '💌', title: 'Когда тебя нет',  text: 'Даже когда мы не видимся — ты всё равно здесь. Любая мелочь — и я сразу думаю о тебе.' },
+  { icon: '✦',  title: 'Рядом с тобой',   text: 'С тобой мне спокойно. Не нужно ничего изображать. Просто быть рядом — и этого уже достаточно.' },
+];
+
+// === STATE ===
+let grid = [];
+let score = 0;
+let matchCount = 0;   // har match qilinganda +1, 8 ta bo'lgach win
+let selected = null;
+let busy = false;
+let pendingIsLast = false;
+let musicPlaying = false;
+
+const audio = document.getElementById('bgMusic');
+
+// === GRID ===
+function rndGem() { return GEMS[Math.floor(Math.random() * GEMS.length)]; }
+
+function initGrid() {
+  grid = [];
+  for (let r = 0; r < ROWS; r++) {
+    grid[r] = [];
+    for (let c = 0; c < COLS; c++) {
+      let g;
+      do {
+        g = rndGem();
+      } while (
+        (c >= 2 && grid[r][c-1] === g && grid[r][c-2] === g) ||
+        (r >= 2 && grid[r-1] && grid[r-1][c] === g && grid[r-2] && grid[r-2][c] === g)
+      );
+      grid[r][c] = g;
+    }
+  }
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.textContent = grid[r][c];
+      cell.dataset.r = r; cell.dataset.c = c;
+      cell.addEventListener('click', () => onCellClick(r, c));
+      board.appendChild(cell);
+    }
+  }
+}
+
+function renderBoardFall() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell fall';
+      cell.textContent = grid[r][c];
+      cell.dataset.r = r; cell.dataset.c = c;
+      cell.addEventListener('click', () => onCellClick(r, c));
+      board.appendChild(cell);
+    }
+  }
+}
+
+function getCell(r, c) {
+  return document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+}
+
+// === CLICK ===
+function onCellClick(r, c) {
+  if (busy) return;
+  if (selected === null) {
+    selected = { r, c };
+    getCell(r, c).classList.add('selected');
+  } else {
+    const dr = Math.abs(r - selected.r);
+    const dc = Math.abs(c - selected.c);
+    getCell(selected.r, selected.c).classList.remove('selected');
+    if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
+      trySwap(selected.r, selected.c, r, c);
+    } else {
+      selected = { r, c };
+      getCell(r, c).classList.add('selected');
+      return;
+    }
+    selected = null;
+  }
+}
+
+// === SWAP ===
+function trySwap(r1, c1, r2, c2) {
+  busy = true;
+  [grid[r1][c1], grid[r2][c2]] = [grid[r2][c2], grid[r1][c1]];
+  renderBoard();
+
+  const matches = findMatches();
+  if (matches.length === 0) {
+    // revert
+    setTimeout(() => {
+      [grid[r1][c1], grid[r2][c2]] = [grid[r2][c2], grid[r1][c1]];
+      renderBoard();
+      busy = false;
+    }, 220);
+  } else {
+    processMatches(matches);
+  }
+}
+
+// === MATCH LOGIC ===
+function findMatches() {
+  const matched = new Set();
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS - 2; c++) {
+      if (grid[r][c] && grid[r][c] === grid[r][c+1] && grid[r][c] === grid[r][c+2]) {
+        let end = c + 2;
+        while (end + 1 < COLS && grid[r][end+1] === grid[r][c]) end++;
+        for (let i = c; i <= end; i++) matched.add(r * COLS + i);
+      }
+    }
+  }
+  for (let c = 0; c < COLS; c++) {
+    for (let r = 0; r < ROWS - 2; r++) {
+      if (grid[r][c] && grid[r][c] === grid[r+1][c] && grid[r][c] === grid[r+2][c]) {
+        let end = r + 2;
+        while (end + 1 < ROWS && grid[end+1][c] === grid[r][c]) end++;
+        for (let i = r; i <= end; i++) matched.add(i * COLS + c);
+      }
+    }
+  }
+  return [...matched].map(idx => ({ r: Math.floor(idx / COLS), c: idx % COLS }));
+}
+
+function processMatches(matches) {
+  const pts = matches.length * 10;
+  score += pts;
+  document.getElementById('scoreNum').textContent = score;
+  showScorePopup(pts);
+
+  matches.forEach(({ r, c }) => {
+    const cell = getCell(r, c);
+    if (cell) cell.classList.add('matched');
+  });
+
+  setTimeout(() => {
+    matches.forEach(({ r, c }) => { grid[r][c] = null; });
+    dropGems();
+    fillEmpty();
+    renderBoardFall();
+
+    setTimeout(() => {
+      const cascadeMatches = findMatches();
+      if (cascadeMatches.length > 0) {
+        // cascade — kompliment chiqarmaymiz, faqat oxirida
+        processCascade(cascadeMatches);
+      } else {
+        // === HAR MATCH QILINGANDA KOMPLIMENT ===
+        matchCount++;
+        document.getElementById('matchNum').textContent = matchCount;
+        const isLast = matchCount >= 8;
+        const comp = COMPLIMENTS[Math.min(matchCount - 1, COMPLIMENTS.length - 1)];
+        pendingIsLast = isLast;
+        setTimeout(() => showComp(comp, matchCount), 200);
+      }
+    }, 380);
+  }, 380);
+}
+
+function processCascade(matches) {
+  const pts = matches.length * 10;
+  score += pts;
+  document.getElementById('scoreNum').textContent = score;
+  showScorePopup(pts);
+
+  matches.forEach(({ r, c }) => {
+    const cell = getCell(r, c);
+    if (cell) cell.classList.add('matched');
+  });
+
+  setTimeout(() => {
+    matches.forEach(({ r, c }) => { grid[r][c] = null; });
+    dropGems();
+    fillEmpty();
+    renderBoardFall();
+
+    setTimeout(() => {
+      const next = findMatches();
+      if (next.length > 0) {
+        processCascade(next);
+      } else {
+        matchCount++;
+        document.getElementById('matchNum').textContent = matchCount;
+        const isLast = matchCount >= 8;
+        const comp = COMPLIMENTS[Math.min(matchCount - 1, COMPLIMENTS.length - 1)];
+        pendingIsLast = isLast;
+        setTimeout(() => showComp(comp, matchCount), 200);
+      }
+    }, 380);
+  }, 380);
+}
+
+function dropGems() {
+  for (let c = 0; c < COLS; c++) {
+    let empty = ROWS - 1;
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (grid[r][c] !== null) {
+        grid[empty][c] = grid[r][c];
+        if (empty !== r) grid[r][c] = null;
+        empty--;
+      }
+    }
+    for (let r = empty; r >= 0; r--) grid[r][c] = null;
+  }
+}
+
+function fillEmpty() {
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      if (grid[r][c] === null) grid[r][c] = rndGem();
+}
+
+// === SCORE POPUP ===
+function showScorePopup(pts) {
+  const pop = document.createElement('div');
+  pop.className = 'score-popup';
+  pop.textContent = '+' + pts;
+  const board = document.getElementById('board');
+  const rect = board.getBoundingClientRect();
+  pop.style.left = (rect.left + rect.width / 2 - 20) + 'px';
+  pop.style.top = (rect.top + rect.height / 2 - 20) + 'px';
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 900);
+}
+
+// === COMPLIMENT MODAL ===
+function showComp(comp, num) {
+  document.getElementById('compIcon').textContent = comp.icon;
+  document.getElementById('compNum').textContent = num + ' из 8';
+  document.getElementById('compTitle').textContent = comp.title;
+  document.getElementById('compText').textContent = comp.text;
+  document.getElementById('compModal').classList.add('show');
+}
+
+function closeComp() {
+  document.getElementById('compModal').classList.remove('show');
+  if (pendingIsLast) {
+    setTimeout(showWin, 400);
+  } else {
+    busy = false;
+  }
+}
+
+// === WIN ===
+function showWin() {
+  const list = document.getElementById('compRecap');
+  list.innerHTML = '';
+  COMPLIMENTS.forEach(c => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="rc-icon">${c.icon}</span><div><div class="rc-title">${c.title}</div><div class="rc-text">${c.text}</div></div>`;
+    list.appendChild(li);
+  });
+  document.getElementById('winOverlay').classList.add('show');
+}
+
+function fullRestart() {
+  document.getElementById('winOverlay').classList.remove('show');
+  score = 0; matchCount = 0; busy = false; selected = null; pendingIsLast = false;
+  document.getElementById('scoreNum').textContent = '0';
+  document.getElementById('matchNum').textContent = '0';
+  initGrid();
+  renderBoard();
+}
+
+// === MUSIC ===
+document.addEventListener('click', function sm() {
+  if (!musicPlaying) {
+    audio.play().then(() => {
+      musicPlaying = true;
+      document.getElementById('musicBtn').textContent = '🔊';
+      document.getElementById('musicBtn').classList.add('playing');
+    }).catch(() => {});
+  }
+  document.removeEventListener('click', sm);
+}, { once: true });
+
+function toggleMusic() {
+  if (musicPlaying) {
+    audio.pause(); musicPlaying = false;
+    document.getElementById('musicBtn').textContent = '🎵';
+    document.getElementById('musicBtn').classList.remove('playing');
+  } else {
+    audio.play().then(() => {
+      musicPlaying = true;
+      document.getElementById('musicBtn').textContent = '🔊';
+      document.getElementById('musicBtn').classList.add('playing');
+    }).catch(() => { alert('Положи music.mp3 рядом с файлом'); });
+  }
+}
+
+// === START ===
+initGrid();
+renderBoard();
+</script>
+</body>
+</html>
